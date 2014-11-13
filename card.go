@@ -11,21 +11,16 @@ var suits [4]string = [4]string{"♦", "♠", "♥", "♣"}
 
 // Card a card representation
 type Card struct {
-	// value as 2 = 2, 11 = J, 12 = Q, 13 = K, 14 = A
+	// value as 1 = A♦ , 2 = 2♦, 11 = J♦, 12 = Q♦, 13 = K♦, 14 = A♠
 	value int
-	// suit as 1 = ♦, 2 = ♠, 3 = ♥, 4 = ♣
-	suit int
 }
 
 // New create a new Card checking passed values
-func NewCard(value, suit int) (*Card, error) {
-	if value < 2 || value > 14 {
+func NewCard(value int) (*Card, error) {
+	if value < 1 || value > 52 {
 		return nil, errors.New("card value out of limits")
 	}
-	if suit < 1 || suit > 4 {
-		return nil, errors.New("card suit out of limits")
-	}
-	return &Card{value, suit}, nil
+	return &Card{value}, nil
 }
 
 // newCardSuit create a new card bypassing err and with strings as parameters
@@ -46,7 +41,7 @@ func newCardString(v string) *Card {
 	case 'K':
 		value = 13
 	case 'A':
-		value = 14
+		value = 1
 	case '2', '3', '4', '5', '6', '7', '8', '9':
 		value, _ = strconv.Atoi(string(v[0]))
 	}
@@ -57,27 +52,50 @@ func newCardString(v string) *Card {
 	r, _ := utf8.DecodeLastRuneInString(v)
 	switch r {
 	case '♦':
-		suit = 1
+		suit = 0
 	case '♠':
-		suit = 2
+		suit = 1
 	case '♥':
-		suit = 3
+		suit = 2
 	case '♣':
-		suit = 4
+		suit = 3
 	}
-
-	c, _ := NewCard(value, suit)
+	c, _ := NewCard(value + (suit * 13))
 	return c
+}
+
+// Value return the value of the card A = 1, 10 = 10, Q = 11
+func (c *Card) Value() int {
+	if c.value%13 == 0 {
+		return 13
+	}
+	return c.value % 13
+}
+
+// Suit return the suit as follow 0 = ♦, 1 = ♠, 2 = ♥, 3 = ♣
+func (c *Card) Suit() int {
+	return c.value / 13
+}
+
+// valid return true if a card is a valid one
+func (c *Card) valid() bool {
+	if c.value < 2 || c.value > 52 {
+		return false
+	}
+	return true
 }
 
 // String display a Card as string
 func (c *Card) String() string {
+	if !c.valid() {
+		return "Undefined"
+	}
 	return fmt.Sprintf("%s%s", c.ValueAsString(), c.SuitAsString())
 }
 
 // valueAsString returns the poker value of the Card
 func (c *Card) ValueAsString() string {
-	switch c.value {
+	switch c.Value() {
 	case 11:
 		return "J"
 	case 12:
@@ -87,15 +105,15 @@ func (c *Card) ValueAsString() string {
 	case 14:
 		return "A"
 	case 2, 3, 4, 5, 6, 7, 8, 9, 10:
-		return strconv.Itoa(c.value)
+		return strconv.Itoa(c.Value())
 	}
 	return "Undefined"
 }
 
 // suiteAsString returns the poker suit of the Card
 func (c *Card) SuitAsString() string {
-	if c.suit > 0 && c.suit < 5 {
-		return suits[c.suit-1]
+	if c.Suit() >= 0 && c.Suit() <= 3 {
+		return suits[c.Suit()]
 	}
 	return "Undefined"
 }
