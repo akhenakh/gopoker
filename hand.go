@@ -35,12 +35,24 @@ func NewHand(cards [5]Card) (*Hand, error) {
 		}
 	}
 
+	// checking for duplicates
+	for i := 0; i < 5; i++ {
+		for j := 0; j < 5; j++ {
+			if i == j {
+				continue
+			}
+			if cards[i].value == cards[j].value {
+				return nil, fmt.Errorf("Invalid hand duplicates on %d %d", i, j)
+			}
+		}
+
+	}
 	h := &Hand{Cards: cards}
 	h.evaluate()
 	return h, nil
 }
 
-// newHS new hand as Strings
+// newHS new hand as Strings, mainly to simplify testing
 // returning a *Hand and evaluate it
 func newHS(sc ...string) (*Hand, error) {
 
@@ -56,42 +68,35 @@ func newHS(sc ...string) (*Hand, error) {
 		cards[i] = *c
 	}
 
-	h := &Hand{Cards: cards}
-	h.evaluate()
 	return NewHand(cards)
 }
 
 // evaluate is evaluating the poker hand and store results in value
 func (h *Hand) evaluate() {
 	// we are looking for pairs, double pairs, threes, fours
-	// groupped hands
-	gh := make([][]int8, 0)
+	// map groupped hands
+	mgh := make(map[int8]int8, 0)
 
 	// grouping by []int8 of the same card value
 	for _, c := range h.Cards {
-		stored := true
 		v := c.Value()
-		for _, g := range gh {
-			if g[0] == v {
-				g = append(g, v)
-				break
-			}
-		}
-		if !stored {
-			g := make([]int8, 1)
-			g[0] = v
-			gh = append(gh, g)
-		}
+		mgh[v]++
 	}
 
-	// removing solo cards
 	sc := make([]int8, 0)
-	for i, g := range gh {
-		if len(g) == 1 {
+	gh := make([][]int8, 0)
+
+	for k, v := range mgh {
+		if v == 1 {
 			// append to solocard
-			sc = append(sc, g[0])
-			// remove from gh
-			gh = append(gh[:i], gh[i+1:]...)
+			sc = append(sc, k)
+		} else {
+			// grouping by same value
+			l := make([]int8, 0)
+			for i := int8(1); i <= v; i++ {
+				l = append(l, v)
+			}
+			gh = append(gh, l)
 		}
 	}
 
@@ -100,7 +105,7 @@ func (h *Hand) evaluate() {
 		sort.Sort(int8Slice(sc))
 		// inverse map remaining solo card to value
 		for x := 0; x < len(sc); x++ {
-			h.value[5-x] = sc[x]
+			h.value[4-x] = sc[x]
 		}
 
 		if len(gh) == 1 {

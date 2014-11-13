@@ -1,2 +1,2 @@
-check for same cards passed in hand = impossible
-check why eval return hand invalid
+deck
+shuffle

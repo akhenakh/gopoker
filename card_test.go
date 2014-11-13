@@ -97,9 +97,16 @@ func TestCardsTestFuncs(t *testing.T) {
 	if c == nil {
 		t.Fatal("expected a valid card got nil")
 	}
-
 	if c.value != 52 {
 		t.Fatal("expected 52 got", c.Value())
+	}
+
+	c = newCS("A♦")
+	if c == nil {
+		t.Fatal("expected a valid card got nil")
+	}
+	if c.value != 1 {
+		t.Fatal("expected 1 got", c.Value())
 	}
 
 }

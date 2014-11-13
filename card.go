@@ -80,7 +80,7 @@ func (c *Card) Suit() int8 {
 
 // valid return true if a card is a valid one
 func (c *Card) valid() bool {
-	if c.value < 2 || c.value > 52 {
+	if c.value < 1 || c.value > 52 {
 		return false
 	}
 	return true
