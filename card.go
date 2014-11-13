@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"unicode/utf8"
 )
 
 var suits [4]string = [4]string{"♦", "♠", "♥", "♣"}
@@ -17,14 +18,56 @@ type Card struct {
 }
 
 // New create a new Card checking passed values
-func NewCard(value, suit int) (error, *Card) {
+func NewCard(value, suit int) (*Card, error) {
 	if value < 2 || value > 14 {
-		return errors.New("card value out of limits"), nil
+		return nil, errors.New("card value out of limits")
 	}
 	if suit < 1 || suit > 4 {
-		return errors.New("card suit out of limits"), nil
+		return nil, errors.New("card suit out of limits")
 	}
-	return nil, &Card{value, suit}
+	return &Card{value, suit}, nil
+}
+
+// newCardSuit create a new card bypassing err and with strings as parameters
+// main purpose is to simplifiy testing
+// v is a string as follow A♥
+func newCardString(v string) *Card {
+	if len(v) < 2 {
+		return nil
+	}
+	var value int
+	var suit int
+
+	switch v[0] {
+	case 'J':
+		value = 11
+	case 'Q':
+		value = 12
+	case 'K':
+		value = 13
+	case 'A':
+		value = 14
+	case '2', '3', '4', '5', '6', '7', '8', '9':
+		value, _ = strconv.Atoi(string(v[0]))
+	}
+	if v[0:2] == "10" {
+		value = 10
+	}
+
+	r, _ := utf8.DecodeLastRuneInString(v)
+	switch r {
+	case '♦':
+		suit = 1
+	case '♠':
+		suit = 2
+	case '♥':
+		suit = 3
+	case '♣':
+		suit = 4
+	}
+
+	c, _ := NewCard(value, suit)
+	return c
 }
 
 // String display a Card as string
