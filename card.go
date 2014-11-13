@@ -12,26 +12,26 @@ var suits [4]string = [4]string{"♦", "♠", "♥", "♣"}
 // Card a card representation
 type Card struct {
 	// value as 1 = A♦ , 2 = 2♦, 11 = J♦, 12 = Q♦, 13 = K♦, 14 = A♠
-	value int
+	value int8
 }
 
 // New create a new Card checking passed values
-func NewCard(value int) (*Card, error) {
+func NewCard(value int8) (*Card, error) {
 	if value < 1 || value > 52 {
 		return nil, errors.New("card value out of limits")
 	}
 	return &Card{value}, nil
 }
 
-// newCardSuit create a new card bypassing err and with strings as parameters
+// newCS create a new card bypassing err and with a string as parameters
 // main purpose is to simplifiy testing
-// v is a string as follow A♥
-func newCardString(v string) *Card {
+// v is a string as follow "A♥"
+func newCS(v string) *Card {
 	if len(v) < 2 {
 		return nil
 	}
-	var value int
-	var suit int
+	var value int8
+	var suit int8
 
 	switch v[0] {
 	case 'J':
@@ -43,7 +43,8 @@ func newCardString(v string) *Card {
 	case 'A':
 		value = 1
 	case '2', '3', '4', '5', '6', '7', '8', '9':
-		value, _ = strconv.Atoi(string(v[0]))
+		vint, _ := strconv.Atoi(string(v[0]))
+		value = int8(vint)
 	}
 	if v[0:2] == "10" {
 		value = 10
@@ -65,7 +66,7 @@ func newCardString(v string) *Card {
 }
 
 // Value return the value of the card A = 1, 10 = 10, Q = 11
-func (c *Card) Value() int {
+func (c *Card) Value() int8 {
 	if c.value%13 == 0 {
 		return 13
 	}
@@ -73,7 +74,7 @@ func (c *Card) Value() int {
 }
 
 // Suit return the suit as follow 0 = ♦, 1 = ♠, 2 = ♥, 3 = ♣
-func (c *Card) Suit() int {
+func (c *Card) Suit() int8 {
 	return c.value / 13
 }
 
@@ -95,17 +96,21 @@ func (c *Card) String() string {
 
 // valueAsString returns the poker value of the Card
 func (c *Card) ValueAsString() string {
-	switch c.Value() {
+	return cardValueAsString(c.Value())
+}
+
+func cardValueAsString(v int8) string {
+	switch v {
 	case 11:
 		return "J"
 	case 12:
 		return "Q"
 	case 13:
 		return "K"
-	case 14:
+	case 1:
 		return "A"
 	case 2, 3, 4, 5, 6, 7, 8, 9, 10:
-		return strconv.Itoa(c.Value())
+		return strconv.Itoa(int(v))
 	}
 	return "Undefined"
 }

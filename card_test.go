@@ -46,22 +46,22 @@ func TestCards(t *testing.T) {
 }
 
 func TestCardsTestFuncs(t *testing.T) {
-	c := newCardString("")
+	c := newCS("")
 	if c != nil {
 		t.Fatal("expected a nil card")
 	}
 
-	c = newCardString("q")
+	c = newCS("q")
 	if c != nil {
 		t.Fatal("expected a nil card")
 	}
 
-	c = newCardString("qa")
+	c = newCS("qa")
 	if c != nil {
 		t.Fatal("expected a nil card")
 	}
 
-	c = newCardString("2♠")
+	c = newCS("2♠")
 	if c == nil {
 		t.Fatal("expected a valid card got nil")
 	}
@@ -74,17 +74,17 @@ func TestCardsTestFuncs(t *testing.T) {
 		t.Fatal("expected 2 got", c.Value())
 	}
 
-	c = newCardString("10♣")
+	c = newCS("10♣")
 	if c.Value() != 10 || c.Suit() != 3 {
 		t.Fatal("expected 10, 1 got", c.Value(), c.Suit())
 	}
 
-	c = newCardString("K♠")
+	c = newCS("K♠")
 	if c.Value() != 13 || c.Suit() != 2 {
 		t.Fatal("expected 13, 2 got", c.Value(), c.Suit())
 	}
 
-	c = newCardString("A♥")
+	c = newCS("A♥")
 	if c == nil {
 		t.Fatal("expected a valid card got nil")
 	}
@@ -93,7 +93,7 @@ func TestCardsTestFuncs(t *testing.T) {
 		t.Fatal("expected 1 got", c.Value())
 	}
 
-	c = newCardString("K♣")
+	c = newCS("K♣")
 	if c == nil {
 		t.Fatal("expected a valid card got nil")
 	}
