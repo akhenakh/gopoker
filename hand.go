@@ -5,7 +5,7 @@ import (
 	"sort"
 )
 
-type HandValue int8
+type HandValue int
 
 const (
 	_ HandValue = iota
@@ -24,7 +24,7 @@ const (
 type Hand struct {
 	Cards     [5]Card
 	HandValue HandValue
-	value     [5]int8
+	value     [5]int
 }
 
 // NewHand is returning a *Hand and evaluate it
@@ -75,16 +75,16 @@ func newHS(sc ...string) (*Hand, error) {
 func (h *Hand) evaluate() {
 	// we are looking for pairs, double pairs, threes, fours
 	// map groupped hands
-	mgh := make(map[int8]int8, 0)
+	mgh := make(map[int]int, 0)
 
-	// grouping by []int8 of the same card value
+	// grouping by []int of the same card value
 	for _, c := range h.Cards {
 		v := c.Value()
 		mgh[v]++
 	}
 
-	sc := make([]int8, 0)
-	gh := make([][]int8, 0)
+	sc := make([]int, 0)
+	gh := make([][]int, 0)
 
 	for k, v := range mgh {
 		if v == 1 {
@@ -92,8 +92,8 @@ func (h *Hand) evaluate() {
 			sc = append(sc, k)
 		} else {
 			// grouping by same value
-			l := make([]int8, 0)
-			for i := int8(1); i <= v; i++ {
+			l := make([]int, 0)
+			for i := int(1); i <= v; i++ {
 				l = append(l, v)
 			}
 			gh = append(gh, l)
@@ -102,7 +102,7 @@ func (h *Hand) evaluate() {
 
 	if len(gh) > 0 {
 		// sort the remaining solo card
-		sort.Sort(int8Slice(sc))
+		sort.Sort(sort.IntSlice(sc))
 		// inverse map remaining solo card to value
 		for x := 0; x < len(sc); x++ {
 			h.value[4-x] = sc[x]
@@ -146,28 +146,19 @@ func (h *Hand) evaluate() {
 		return
 	}
 
-}
-
-//  int8 convenience sort method
-type int8Slice []int8
-
-func (p int8Slice) Len() int           { return len(p) }
-func (p int8Slice) Less(i, j int) bool { return p[i] < p[j] }
-func (p int8Slice) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
-func (p int8Slice) IsIn(i int8) bool {
-	for _, x := range p {
-		if x == i {
-			return true
-		}
+	// sort card value by order
+	hs := h.asSortedInts()
+	for i := int(0); i < 5; i++ {
+		h.value[4-i] = hs[i]
 	}
-	return false
+
 }
 
 // asInts return hand's cards value as []int
 func (h *Hand) asSortedInts() []int {
 	v := make([]int, 5)
 	for i, c := range h.Cards {
-		v[i] = int(c.value)
+		v[i] = c.value
 	}
 	sort.Sort(sort.IntSlice(v))
 	return v
