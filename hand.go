@@ -73,6 +73,9 @@ func newHS(sc ...string) (*Hand, error) {
 
 // evaluate is evaluating the poker hand and store results in value
 func (h *Hand) evaluate() {
+	var flush bool
+	var straightLow int
+
 	// we are looking for pairs, double pairs, threes, fours
 	// map groupped hands
 	mgh := make(map[int]int, 0)
@@ -82,7 +85,6 @@ func (h *Hand) evaluate() {
 		v := c.Value()
 		mgh[v]++
 	}
-
 	sc := make([]int, 0)
 	gh := make([][]int, 0)
 
@@ -94,7 +96,7 @@ func (h *Hand) evaluate() {
 			// grouping by same value
 			l := make([]int, 0)
 			for i := int(1); i <= v; i++ {
-				l = append(l, v)
+				l = append(l, k)
 			}
 			gh = append(gh, l)
 		}
@@ -146,22 +148,55 @@ func (h *Hand) evaluate() {
 		return
 	}
 
-	// sort card value by order
-	hs := h.asSortedInts()
-	for i := int(0); i < 5; i++ {
-		h.value[4-i] = hs[i]
-	}
-
-}
-
-// asInts return hand's cards value as []int
-func (h *Hand) asSortedInts() []int {
-	v := make([]int, 5)
+	// copy the cards and sort by value
+	cards := make(CardSlice, 5)
 	for i, c := range h.Cards {
-		v[i] = c.value
+		cards[i] = c
 	}
-	sort.Sort(sort.IntSlice(v))
-	return v
+	sort.Sort(cards)
+
+	for i := 0; i < 5; i++ {
+		h.value[4-i] = cards[i].Value()
+	}
+
+	// test for flush or straight
+	if cards[0].Suit() == cards[1].Suit() && cards[2].Suit() == cards[3].Suit() &&
+		cards[4].Suit() == cards[0].Suit() && cards[0].Suit() == cards[2].Suit() {
+		flush = true
+	}
+
+	// test low Straight for Ace
+	if cards[0].Value() == 2 && cards[1].Value() == 3 && cards[2].Value() == 4 &&
+		cards[3].Value() == 5 && cards[4].Value() == 14 {
+		straightLow = 1
+	}
+
+	// test other straight
+	for x := 2; x < 11; x++ {
+		if cards[0].Value() == x && cards[1].Value() == x+1 && cards[2].Value() == x+2 &&
+			cards[3].Value() == x+3 && cards[4].Value() == x+4 {
+			straightLow = x
+			break
+		}
+	}
+
+	if straightLow > 0 {
+		for i := 0; i < 5; i++ {
+			h.value[4-i] = straightLow + i
+		}
+	}
+
+	if straightLow > 0 && !flush {
+		h.HandValue = Straight
+	} else if straightLow > 0 && flush {
+		h.HandValue = StraightFlush
+	} else if flush {
+		h.HandValue = Flush
+	}
+
+	if h.HandValue == 0 {
+		h.HandValue = HighCard
+	}
 }
 
 // String display a Card as string
@@ -172,17 +207,25 @@ func (h *Hand) String() string {
 
 // EvalString display the poker evaluated hand as string
 func (h *Hand) EvalString() string {
-	switch HandValue(h.value[0]) {
+	switch HandValue(h.HandValue) {
 	case HighCard:
-		return "high card"
+		return "High card"
 	case Pair:
-		return fmt.Sprintf("pair of %s's", cardValueAsString(h.value[1]))
+		return fmt.Sprintf("Pair of %s's", cardValueAsString(h.value[0]))
 	case TwoPairs:
-		return fmt.Sprintf("two pair %s %s", cardValueAsString(h.value[1]), cardValueAsString(h.value[3]))
+		return fmt.Sprintf("Two pair %s %s", cardValueAsString(h.value[0]), cardValueAsString(h.value[2]))
 	case ThreeOfAKind:
-		return fmt.Sprintf("three of a kind %s's", cardValueAsString(h.value[1]))
-	case 8:
-		return fmt.Sprintf("four of a kind %s's", cardValueAsString(h.value[1]))
+		return fmt.Sprintf("Three of a kind %s's", cardValueAsString(h.value[0]))
+	case Flush:
+		return fmt.Sprintf("%s high flush", cardValueAsString(h.value[0]))
+	case Straight:
+		return fmt.Sprintf("Straight %s high", cardValueAsString(h.value[0]))
+	case FullHouse:
+		return fmt.Sprintf("Full house %s over %s", cardValueAsString(h.value[0]), cardValueAsString(h.value[3]))
+	case FourOfAKind:
+		return fmt.Sprintf("Four of a kind %s's", cardValueAsString(h.value[0]))
+	case StraightFlush:
+		return fmt.Sprintf("Straight flush %s high", cardValueAsString(h.value[0]))
 	}
 	return "Invalid hand"
 }

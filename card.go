@@ -65,17 +65,26 @@ func newCS(v string) *Card {
 	return c
 }
 
-// Value return the value of the card A = 1, 10 = 10, Q = 11
+// Value return the value of the card A = 14, 10 = 10, Q = 11
 func (c *Card) Value() int {
+	// Ace case
 	if c.value%13 == 0 {
 		return 13
+	}
+	if c.value%13 == 1 {
+		return 14
 	}
 	return c.value % 13
 }
 
 // Suit return the suit as follow 0 = ♦, 1 = ♠, 2 = ♥, 3 = ♣
 func (c *Card) Suit() int {
-	return c.value / 13
+	s := c.value / 13
+	n := c.value % 13
+	if n == 0 {
+		s--
+	}
+	return s
 }
 
 // valid return true if a card is a valid one
@@ -107,7 +116,7 @@ func cardValueAsString(v int) string {
 		return "Q"
 	case 13:
 		return "K"
-	case 1:
+	case 14:
 		return "A"
 	case 2, 3, 4, 5, 6, 7, 8, 9, 10:
 		return strconv.Itoa(int(v))
@@ -122,3 +131,9 @@ func (c *Card) SuitAsString() string {
 	}
 	return "Undefined"
 }
+
+type CardSlice []Card
+
+func (cs CardSlice) Len() int           { return len(cs) }
+func (cs CardSlice) Less(i, j int) bool { return cs[i].Value() < cs[j].Value() }
+func (cs CardSlice) Swap(i, j int)      { cs[i], cs[j] = cs[j], cs[i] }
