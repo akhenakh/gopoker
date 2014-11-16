@@ -186,3 +186,87 @@ func TestHands(t *testing.T) {
 		t.Fatal("expected high card got", h.EvalString())
 	}
 }
+
+func TestHandsCompare(t *testing.T) {
+
+	// High card
+	high, err := newHS("5♠", "3♥", "J♥", "7♣", "Q♠")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if high.HandValue != HighCard {
+		t.Fatal("expected HandValue to be a High card got value", high.HandValue)
+	}
+
+	// Pair
+	hpair, err := newHS("A♠", "A♥", "J♥", "7♣", "Q♠")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if hpair.HandValue != Pair {
+		t.Fatal("expected HandValue to be a Pair got value", hpair.HandValue)
+	}
+
+	// Pair
+	hpairlow, err := newHS("A♠", "2♥", "Q♥", "7♣", "Q♠")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if hpairlow.HandValue != Pair {
+		t.Fatal("expected HandValue to be a Pair got value", hpairlow.HandValue)
+	}
+
+	// compare 2 pairs
+	if hpair.Compare(hpairlow) != -1 {
+		t.Fatal("expected Compare to return -1 got value", hpair.Compare(hpairlow))
+	}
+
+	// compare pair and high card
+	if hpair.Compare(high) != -1 {
+		t.Fatal("expected Compare to return -1 got value", hpair.Compare(high))
+	}
+
+	// Two pairs
+	htwo, err := newHS("7♠", "7♥", "J♥", "A♥", "A♣")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if htwo.HandValue != TwoPairs {
+		t.Fatal("expected HandValue to be Two pairs got value", htwo.HandValue)
+	}
+
+	// compare 2 pairs and high card
+	if htwo.Compare(high) != -1 {
+		t.Fatal("expected Compare to return -1 got value", htwo.Compare(high))
+	}
+
+	// compare 2 pairs and a pair
+	if htwo.Compare(hpair) != -1 {
+		t.Fatal("expected Compare to return -1 got value", htwo.Compare(hpair))
+	}
+
+	// Three
+	hthree, err := newHS("A♠", "A♥", "J♥", "7♣", "A♣")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if hthree.HandValue != ThreeOfAKind {
+		t.Fatal("expected HandValue to be Three of a Kind got value", hthree.HandValue)
+	}
+
+	// compare 3 and high card
+	if hthree.Compare(high) != -1 {
+		t.Fatal("expected Compare to return -1 got value", hthree.Compare(high))
+	}
+
+	// compare 3  and a pair
+	if hthree.Compare(hpair) != -1 {
+		t.Fatal("expected Compare to return -1 got value", hthree.Compare(hpair))
+	}
+
+	// compare 3  and 2 pairs
+	if hthree.Compare(htwo) != -1 {
+		t.Fatal("expected Compare to return -1 got value", hthree.Compare(htwo))
+	}
+
+}
