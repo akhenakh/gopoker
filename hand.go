@@ -199,6 +199,24 @@ func (h *Hand) evaluate() {
 	}
 }
 
+// Compare will compare two hands returning -1 when oh is lower, 1 when oh is higher, 0 if deuce
+func (h *Hand) Compare(oh *Hand) int {
+	if oh.HandValue > h.HandValue {
+		return 1
+	} else if oh.HandValue < h.HandValue {
+		return -1
+	}
+
+	for i := 0; i < 5; i++ {
+		if oh.value[i] > h.value[i] {
+			return 1
+		} else if oh.value[i] < h.value[i] {
+			return -1
+		}
+	}
+	return 0
+}
+
 // String display a Card as string
 func (h *Hand) String() string {
 	return fmt.Sprintf("%s %s %s %s %s",
