@@ -30,33 +30,22 @@ func TestCards(t *testing.T) {
 	if err != nil {
 		t.Fatal("expected a valid Card")
 	}
-
-	if c.String() != "2♦" {
-		t.Fatal("expected 2♦ got", c.String())
-	}
+	Equal(t, "2♦", c.String())
 
 	c, err = NewCard(15)
 	if err != nil {
 		t.Fatal("expected a valid Card")
 	}
-	if c.value != 15 {
-		t.Fatal("expected 15 got", c.value)
-	}
-	if c.String() != "2♠" {
-		t.Fatal("expected 2♠ got", c.String())
-	}
+	Equal(t, 15, c.value)
+	Equal(t, "2♠", c.String())
 
 	// Ace are special case
 	c, err = NewCard(1)
 	if err != nil {
 		t.Fatal("expected a valid Card")
 	}
-	if c.Value() != 14 {
-		t.Fatal("expected 14 for an Ace got", c.Value())
-	}
-	if c.Suit() != 0 {
-		t.Fatal("expected suit 0 got", c.Suit())
-	}
+	Equal(t, 14, c.Value())
+	Equal(t, 0, c.Suit())
 }
 
 func TestCardsTestFuncs(t *testing.T) {
@@ -80,26 +69,18 @@ func TestCardsTestFuncs(t *testing.T) {
 		t.Fatal("expected a valid card got nil")
 	}
 
-	if c.value != 15 {
-		t.Fatal("expected 15 got", c.value)
-	}
+	Equal(t, 15, c.value)
 
-	if c.Value() != 2 {
-		t.Fatal("expected 2 got", c.Value())
-	}
+	Equal(t, 2, c.Value())
 
 	c = newCS("A♠")
 	if c == nil {
 		t.Fatal("expected a valid card got nil")
 	}
 
-	if c.Value() != 14 {
-		t.Fatal("expected 14 got", c.value)
-	}
+	Equal(t, 14, c.Value())
 
-	if c.Suit() != 1 {
-		t.Fatal("expected suit 1 got", c.Suit())
-	}
+	Equal(t, 1, c.Suit())
 
 	c = newCS("10♣")
 	if c.Value() != 10 || c.Suit() != 3 {
@@ -124,19 +105,12 @@ func TestCardsTestFuncs(t *testing.T) {
 	if c == nil {
 		t.Fatal("expected a valid card got nil")
 	}
-	if c.value != 52 {
-		t.Fatal("expected 52 got", c.Value())
-	}
+	Equal(t, 52, c.value)
 
 	c = newCS("K♦")
 	if c == nil {
 		t.Fatal("expected a valid card got nil")
 	}
-	if c.Value() != 13 {
-		t.Fatal("expected 14 got", c.Value())
-	}
-	if c.Suit() != 0 {
-		t.Fatal("expected suit 0 got", c.Suit())
-	}
-
+	Equal(t, 13, c.Value())
+	Equal(t, 0, c.Suit())
 }
