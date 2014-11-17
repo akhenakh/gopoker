@@ -165,10 +165,8 @@ func TestHandsCompare(t *testing.T) {
 		t.Fatal(err)
 	}
 	Equal(t, Pair, hpairlow.HandValue)
-
 	// compare 2 pairs
 	Equal(t, -1, hpair.Compare(hpairlow))
-
 	// compare pair and high card
 	Equal(t, -1, hpair.Compare(high))
 
@@ -178,10 +176,8 @@ func TestHandsCompare(t *testing.T) {
 		t.Fatal(err)
 	}
 	Equal(t, TwoPairs, htwo.HandValue)
-
 	// compare 2 pairs and high card
 	Equal(t, -1, htwo.Compare(high))
-
 	// compare 2 pairs and a pair
 	Equal(t, -1, htwo.Compare(hpair))
 
@@ -191,14 +187,114 @@ func TestHandsCompare(t *testing.T) {
 		t.Fatal(err)
 	}
 	Equal(t, ThreeOfAKind, hthree.HandValue)
-
 	// compare 3 and high card
 	Equal(t, -1, hthree.Compare(high))
-
 	// compare 3  and a pair
 	Equal(t, -1, hthree.Compare(hpair))
-
 	// compare 3  and 2 pairs
 	Equal(t, -1, hthree.Compare(htwo))
+
+	// Straight
+	hstraight, err := newHS("A♣", "2♣", "3♦", "4♦", "5♥")
+	if err != nil {
+		t.Fatal(err)
+	}
+	Equal(t, Straight, hstraight.HandValue)
+	// compare straight and high card
+	Equal(t, -1, hstraight.Compare(high))
+	// compare straight  and a pair
+	Equal(t, -1, hstraight.Compare(hpair))
+	// compare straight  and 2 pairs
+	Equal(t, -1, hstraight.Compare(htwo))
+	// compare straight  and threes
+	Equal(t, -1, hstraight.Compare(hthree))
+
+	// Flush
+	hflush, err := newHS("7♥", "9♥", "3♥", "4♥", "2♥")
+	if err != nil {
+		t.Fatal(err)
+	}
+	Equal(t, Flush, hflush.HandValue)
+	// compare flush and high card
+	Equal(t, -1, hflush.Compare(high))
+	// compare flush  and a pair
+	Equal(t, -1, hflush.Compare(hpair))
+	// compare flush  and 2 pairs
+	Equal(t, -1, hflush.Compare(htwo))
+	// compare flush  and threes
+	Equal(t, -1, hflush.Compare(hthree))
+	// compare flush  and straight
+	Equal(t, -1, hflush.Compare(hstraight))
+
+	// Full House
+	hfull, err := newHS("A♦", "A♥", "J♥", "J♠", "J♣")
+	if err != nil {
+		t.Fatal(err)
+	}
+	Equal(t, FullHouse, hfull.HandValue)
+	// compare full and high card
+	Equal(t, -1, hfull.Compare(high))
+	// compare full  and a pair
+	Equal(t, -1, hfull.Compare(hpair))
+	// compare full  and 2 pairs
+	Equal(t, -1, hfull.Compare(htwo))
+	// compare full  and threes
+	Equal(t, -1, hfull.Compare(hthree))
+	// compare full  and straight
+	Equal(t, -1, hfull.Compare(hstraight))
+	// compare full  and flush
+	Equal(t, -1, hfull.Compare(hflush))
+
+	// Four
+	hfour, err := newHS("A♦", "A♥", "J♥", "A♠", "A♣")
+	if err != nil {
+		t.Fatal(err)
+	}
+	Equal(t, FourOfAKind, hfour.HandValue)
+	// compare four and high card
+	Equal(t, -1, hfour.Compare(high))
+	// compare four  and a pair
+	Equal(t, -1, hfour.Compare(hpair))
+	// compare four  and 2 pairs
+	Equal(t, -1, hfour.Compare(htwo))
+	// compare four  and threes
+	Equal(t, -1, hfour.Compare(hthree))
+	// compare four  and straight
+	Equal(t, -1, hfour.Compare(hstraight))
+	// compare four  and flush
+	Equal(t, -1, hfour.Compare(hflush))
+	// compare four  and full
+	Equal(t, -1, hfour.Compare(hfull))
+
+	// Straight flush
+	hsf, err := newHS("A♦", "2♦", "3♦", "4♦", "5♦")
+	if err != nil {
+		t.Fatal(err)
+	}
+	Equal(t, StraightFlush, hsf.HandValue)
+	// compare straight flush and high card
+	Equal(t, -1, hsf.Compare(high))
+	Equal(t, 1, high.Compare(hsf))
+	// compare straight flush  and a pair
+	Equal(t, -1, hsf.Compare(hpair))
+	Equal(t, 1, hpair.Compare(hsf))
+	// compare straight flush  and 2 pairs
+	Equal(t, -1, hsf.Compare(htwo))
+	Equal(t, 1, htwo.Compare(hsf))
+	// compare straight flush  and threes
+	Equal(t, -1, hsf.Compare(hthree))
+	Equal(t, 1, hthree.Compare(hsf))
+	// compare straight flush  and straight
+	Equal(t, -1, hsf.Compare(hstraight))
+	Equal(t, 1, hstraight.Compare(hsf))
+	// compare straight flush  and flush
+	Equal(t, -1, hsf.Compare(hflush))
+	Equal(t, 1, hflush.Compare(hsf))
+	// compare straight flush  and full
+	Equal(t, -1, hsf.Compare(hfull))
+	Equal(t, 1, hfull.Compare(hsf))
+	// compare straight flush  and four
+	Equal(t, -1, hsf.Compare(hfour))
+	Equal(t, 1, hfour.Compare(hsf))
 
 }
