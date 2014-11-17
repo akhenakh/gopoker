@@ -1,6 +1,19 @@
 package poker
 
-import "testing"
+import (
+	"path"
+	"reflect"
+	"runtime"
+	"testing"
+)
+
+func Equal(t *testing.T, expected, got interface{}) {
+	if !reflect.DeepEqual(expected, got) {
+		_, file, line, _ := runtime.Caller(1)
+		t.Logf("%s:%d expected %v got %v", path.Base(file), line, expected, got)
+		t.FailNow()
+	}
+}
 
 func TestHands(t *testing.T) {
 	cards := [5]Card{*newCS("9♥"), *newCS("2♠"), *newCS("A♠"), *newCS("9♣"), *newCS("6♠")}
@@ -8,9 +21,7 @@ func TestHands(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if h.String() != "9♥ 2♠ A♠ 9♣ 6♠" {
-		t.Fatal("expected 9♥ 2♠ A♠ 9♣ 6♠ got", h.String())
-	}
+	Equal(t, "9♥ 2♠ A♠ 9♣ 6♠", h.String())
 
 	h, err = newHS("A♠", "2♥", "J♥", "7♣", "A♠")
 	if err == nil {
@@ -21,170 +32,115 @@ func TestHands(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	if h.String() != "A♠ 2♥ J♥ 7♣ Q♠" {
-		t.Fatal("expected A♠ 2♥ J♥ 7♣ Q♠ got", h.String())
-	}
+	Equal(t, "A♠ 2♥ J♥ 7♣ Q♠", h.String())
 
 	// High card
 	h, err = newHS("5♠", "3♥", "J♥", "7♣", "Q♠")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if h.HandValue != HighCard {
-		t.Fatal("expected HandValue to be a High card got value", h.HandValue)
-	}
+	Equal(t, HighCard, h.HandValue)
 
 	// Pair
 	h, err = newHS("A♠", "A♥", "J♥", "7♣", "Q♠")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if h.HandValue != Pair {
-		t.Fatal("expected HandValue to be a Pair got value", h.HandValue)
-	}
-	if h.EvalString() != "Pair of A's" {
-		t.Fatal("expected Pair of A's got", h.EvalString())
-	}
+	Equal(t, Pair, h.HandValue)
+	Equal(t, "Pair of A's", h.EvalString())
 
 	h, err = newHS("K♠", "K♥", "J♥", "7♥", "7♣")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if h.HandValue != TwoPairs {
-		t.Fatal("expected HandValue to be Two pairs got value", h.HandValue)
-	}
-	if h.EvalString() != "Two pair K 7" {
-		t.Fatal("expected Two pair K 7 got", h.EvalString())
-	}
+	Equal(t, TwoPairs, h.HandValue)
+	Equal(t, "Two pair K 7", h.EvalString())
 
 	// Two pairs
 	h, err = newHS("7♠", "7♥", "J♥", "A♥", "A♣")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if h.HandValue != TwoPairs {
-		t.Fatal("expected HandValue to be Two pairs got value", h.HandValue)
-	}
-	if h.EvalString() != "Two pair A 7" {
-		t.Fatal("expected Two pair A 7 got", h.EvalString())
-	}
+	Equal(t, TwoPairs, h.HandValue)
+	Equal(t, "Two pair A 7", h.EvalString())
+
 	h, err = newHS("Q♠", "A♥", "J♥", "A♣", "Q♣")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if h.HandValue != TwoPairs {
-		t.Fatal("expected HandValue to be Two pairs got value", h.HandValue)
-	}
-	if h.EvalString() != "Two pair A Q" {
-		t.Fatal("expected Two pair A Q got", h.EvalString())
-	}
+	Equal(t, TwoPairs, h.HandValue)
+	Equal(t, "Two pair A Q", h.EvalString())
 
 	// Three
 	h, err = newHS("A♠", "A♥", "J♥", "7♣", "A♣")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if h.HandValue != ThreeOfAKind {
-		t.Fatal("expected HandValue to be Three of a Kind got value", h.HandValue)
-	}
-	if h.EvalString() != "Three of a kind A's" {
-		t.Fatal("expected Three A high got", h.EvalString())
-	}
+	Equal(t, ThreeOfAKind, h.HandValue)
+	Equal(t, "Three of a kind A's", h.EvalString())
 
 	// Straight
 	h, err = newHS("A♣", "2♣", "3♦", "4♦", "5♥")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if h.HandValue != Straight {
-		t.Fatal("expected HandValue to be a Straight got value", h.HandValue)
-	}
-	if h.EvalString() != "Straight 5 high" {
-		t.Fatal("expected Straight 5 high got", h.EvalString())
-	}
+	Equal(t, Straight, h.HandValue)
+	Equal(t, "Straight 5 high", h.EvalString())
 
 	// Full House
 	h, err = newHS("A♦", "A♥", "J♥", "J♠", "J♣")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if h.HandValue != FullHouse {
-		t.Fatal("expected HandValue to be Full House got value", h.HandValue)
-	}
-	if h.EvalString() != "Full house J over A" {
-		t.Fatal("expected Full house J over A got", h.EvalString())
-	}
+	Equal(t, FullHouse, h.HandValue)
+	Equal(t, "Full house J over A", h.EvalString())
+
 	h, err = newHS("7♦", "7♥", "7♠", "J♠", "J♣")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if h.HandValue != FullHouse {
-		t.Fatal("expected HandValue to be Full House got value", h.HandValue)
-	}
-	if h.EvalString() != "Full house 7 over J" {
-		t.Fatal("expected Full house 7 over J got", h.EvalString())
-	}
+	Equal(t, FullHouse, h.HandValue)
+	Equal(t, "Full house 7 over J", h.EvalString())
 
 	// Flush
 	h, err = newHS("7♥", "9♥", "3♥", "4♥", "2♥")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if h.HandValue != Flush {
-		t.Fatal("expected HandValue to b Flush got value", h.HandValue)
-	}
-	if h.EvalString() != "9 high flush" {
-		t.Fatal("expected 9 high flush got", h.EvalString())
-	}
+	Equal(t, Flush, h.HandValue)
+	Equal(t, "9 high flush", h.EvalString())
 
 	// Four
 	h, err = newHS("A♦", "A♥", "J♥", "A♠", "A♣")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if h.HandValue != FourOfAKind {
-		t.Fatal("expected HandValue to be Four of a Kind got value", h.HandValue)
-	}
-	if h.EvalString() != "Four of a kind A's" {
-		t.Fatal("expected Four A high got", h.EvalString())
-	}
+	Equal(t, FourOfAKind, h.HandValue)
+	Equal(t, "Four of a kind A's", h.EvalString())
 
 	// Straight flush
 	h, err = newHS("A♦", "2♦", "3♦", "4♦", "5♦")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if h.HandValue != StraightFlush {
-		t.Fatal("expected HandValue to be a Straight Flush got value", h.HandValue)
-	}
-	if h.EvalString() != "Straight flush 5 high" {
-		t.Fatal("expected Straight flush 5 high got", h.EvalString())
-	}
+	Equal(t, StraightFlush, h.HandValue)
+	Equal(t, "Straight flush 5 high", h.EvalString())
 
 	// straight flush A high
 	h, err = newHS("10♦", "J♦", "K♦", "A♦", "Q♦")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if h.HandValue != StraightFlush {
-		t.Fatal("expected HandValue to be a Straight Flush got value", h.HandValue)
-	}
-	if h.EvalString() != "Straight flush A high" {
-		t.Fatal("expected Straight flush A high got", h.EvalString())
-	}
+	Equal(t, StraightFlush, h.HandValue)
+	Equal(t, "Straight flush A high", h.EvalString())
 
 	//High card
 	h, err = newHS("10♦", "2♦", "K♦", "5♦", "Q♥")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if h.HandValue != HighCard {
-		t.Fatal("expected HandValue to be High card got value", h.HandValue)
-	}
-	if h.EvalString() != "High card" {
-		t.Fatal("expected high card got", h.EvalString())
-	}
+	Equal(t, HighCard, h.HandValue)
+	Equal(t, "High card", h.EvalString())
 }
 
 func TestHandsCompare(t *testing.T) {
@@ -194,79 +150,55 @@ func TestHandsCompare(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if high.HandValue != HighCard {
-		t.Fatal("expected HandValue to be a High card got value", high.HandValue)
-	}
+	Equal(t, HighCard, high.HandValue)
 
 	// Pair
 	hpair, err := newHS("A♠", "A♥", "J♥", "7♣", "Q♠")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if hpair.HandValue != Pair {
-		t.Fatal("expected HandValue to be a Pair got value", hpair.HandValue)
-	}
+	Equal(t, Pair, hpair.HandValue)
 
 	// Pair
 	hpairlow, err := newHS("A♠", "2♥", "Q♥", "7♣", "Q♠")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if hpairlow.HandValue != Pair {
-		t.Fatal("expected HandValue to be a Pair got value", hpairlow.HandValue)
-	}
+	Equal(t, Pair, hpairlow.HandValue)
 
 	// compare 2 pairs
-	if hpair.Compare(hpairlow) != -1 {
-		t.Fatal("expected Compare to return -1 got value", hpair.Compare(hpairlow))
-	}
+	Equal(t, -1, hpair.Compare(hpairlow))
 
 	// compare pair and high card
-	if hpair.Compare(high) != -1 {
-		t.Fatal("expected Compare to return -1 got value", hpair.Compare(high))
-	}
+	Equal(t, -1, hpair.Compare(high))
 
 	// Two pairs
 	htwo, err := newHS("7♠", "7♥", "J♥", "A♥", "A♣")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if htwo.HandValue != TwoPairs {
-		t.Fatal("expected HandValue to be Two pairs got value", htwo.HandValue)
-	}
+	Equal(t, TwoPairs, htwo.HandValue)
 
 	// compare 2 pairs and high card
-	if htwo.Compare(high) != -1 {
-		t.Fatal("expected Compare to return -1 got value", htwo.Compare(high))
-	}
+	Equal(t, -1, htwo.Compare(high))
 
 	// compare 2 pairs and a pair
-	if htwo.Compare(hpair) != -1 {
-		t.Fatal("expected Compare to return -1 got value", htwo.Compare(hpair))
-	}
+	Equal(t, -1, htwo.Compare(hpair))
 
 	// Three
 	hthree, err := newHS("A♠", "A♥", "J♥", "7♣", "A♣")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if hthree.HandValue != ThreeOfAKind {
-		t.Fatal("expected HandValue to be Three of a Kind got value", hthree.HandValue)
-	}
+	Equal(t, ThreeOfAKind, hthree.HandValue)
 
 	// compare 3 and high card
-	if hthree.Compare(high) != -1 {
-		t.Fatal("expected Compare to return -1 got value", hthree.Compare(high))
-	}
+	Equal(t, -1, hthree.Compare(high))
 
 	// compare 3  and a pair
-	if hthree.Compare(hpair) != -1 {
-		t.Fatal("expected Compare to return -1 got value", hthree.Compare(hpair))
-	}
+	Equal(t, -1, hthree.Compare(hpair))
 
 	// compare 3  and 2 pairs
-	if hthree.Compare(htwo) != -1 {
-		t.Fatal("expected Compare to return -1 got value", hthree.Compare(htwo))
-	}
+	Equal(t, -1, hthree.Compare(htwo))
 
 }

@@ -1,6 +1,8 @@
 package poker
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestCards(t *testing.T) {
 	c := &Card{}
