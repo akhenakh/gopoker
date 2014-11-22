@@ -20,6 +20,32 @@ const (
 	StraightFlush
 )
 
+// permuts are all the permutations possible for 7 cards comparaisons
+// as in python itertools.combinations([0,1,2,3,4,5,6],5)
+var permuts = [...][5]int{
+	[5]int{0, 1, 2, 3, 4},
+	[5]int{0, 1, 2, 3, 5},
+	[5]int{0, 1, 2, 3, 6},
+	[5]int{0, 1, 2, 4, 5},
+	[5]int{0, 1, 2, 4, 6},
+	[5]int{0, 1, 2, 5, 6},
+	[5]int{0, 1, 3, 4, 5},
+	[5]int{0, 1, 3, 4, 6},
+	[5]int{0, 1, 3, 5, 6},
+	[5]int{0, 1, 4, 5, 6},
+	[5]int{0, 2, 3, 4, 5},
+	[5]int{0, 2, 3, 4, 6},
+	[5]int{0, 2, 3, 5, 6},
+	[5]int{0, 2, 4, 5, 6},
+	[5]int{0, 3, 4, 5, 6},
+	[5]int{1, 2, 3, 4, 5},
+	[5]int{1, 2, 3, 4, 6},
+	[5]int{1, 2, 3, 5, 6},
+	[5]int{1, 2, 4, 5, 6},
+	[5]int{1, 3, 4, 5, 6},
+	[5]int{2, 3, 4, 5, 6},
+}
+
 // Hand is a 5 Cards poker hand
 type Hand struct {
 	Cards     [5]Card
@@ -69,6 +95,53 @@ func newHS(sc ...string) (*Hand, error) {
 	}
 
 	return NewHand(cards)
+}
+
+// NewBestHand returns a new Hand with the best 5 cards poker hands out the 7 given cards
+func NewBestHand(cards [7]Card) (*Hand, error) {
+	var bestHand *Hand
+	for i := 0; i < len(permuts); i++ {
+		testHand, err := NewHand([5]Card{
+			cards[permuts[i][0]],
+			cards[permuts[i][1]],
+			cards[permuts[i][2]],
+			cards[permuts[i][3]],
+			cards[permuts[i][4]],
+		})
+
+		if err != nil {
+			return nil, err
+		}
+
+		if bestHand == nil {
+			bestHand = testHand
+		}
+
+		if bestHand.Compare(testHand) > 0 {
+			bestHand = testHand
+		}
+	}
+
+	return bestHand, nil
+}
+
+// newBestHS returns a new Hand with the best 5 cards poker hands out the 7 given cards as string
+// used to simplify testing only
+func newBestHS(sc ...string) (*Hand, error) {
+
+	if len(sc) != 7 {
+		return nil, fmt.Errorf("Invalid number of cards")
+	}
+	var cards [7]Card
+	for i, s := range sc {
+		c := newCS(s)
+		if c == nil {
+			return nil, fmt.Errorf("Invalid card at pos %d", i)
+		}
+		cards[i] = *c
+	}
+
+	return NewBestHand(cards)
 }
 
 // evaluate is evaluating the poker hand and store results in value

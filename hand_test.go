@@ -296,5 +296,29 @@ func TestHandsCompare(t *testing.T) {
 	// compare straight flush  and four
 	Equal(t, -1, hsf.Compare(hfour))
 	Equal(t, 1, hfour.Compare(hsf))
+}
+
+func TestBestHands(t *testing.T) {
+	// High card
+	high, err := newBestHS("5♠", "3♥", "J♥", "7♣", "Q♠", "2♠", "8♠")
+	if err != nil {
+		t.Fatal(err)
+	}
+	Equal(t, HighCard, high.HandValue)
+
+	// Pair
+	h, err := newBestHS("3♦", "5♦", "A♠", "A♥", "J♥", "7♣", "Q♠")
+	if err != nil {
+		t.Fatal(err)
+	}
+	Equal(t, Pair, h.HandValue)
+	Equal(t, "Pair of A's", h.EvalString())
+
+	// Straight flush
+	hsf, err := newBestHS("A♦", "2♦", "3♦", "4♦", "5♦", "J♠", "J♣")
+	if err != nil {
+		t.Fatal(err)
+	}
+	Equal(t, StraightFlush, hsf.HandValue)
 
 }
