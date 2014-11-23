@@ -314,6 +314,14 @@ func TestBestHands(t *testing.T) {
 	Equal(t, Pair, h.HandValue)
 	Equal(t, "Pair of A's", h.EvalString())
 
+	// Two pairs
+	h, err = newBestHS("7♠", "3♦", "5♦", "7♥", "J♥", "A♥", "A♣")
+	if err != nil {
+		t.Fatal(err)
+	}
+	Equal(t, TwoPairs, h.HandValue)
+	Equal(t, "Two pair A 7", h.EvalString())
+
 	// Straight flush
 	hsf, err := newBestHS("A♦", "2♦", "3♦", "4♦", "5♦", "J♠", "J♣")
 	if err != nil {
