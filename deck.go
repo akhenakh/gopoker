@@ -33,3 +33,8 @@ func (d *Deck) Shuffle() {
 		d.cards[i], d.cards[j] = d.cards[j], d.cards[i]
 	}
 }
+
+// DealForTwo deals 2 Texas Hold Poker
+func (d *Deck) DealForTwo() ([]Card, []Card, []Card) {
+	return d.cards[0:2], d.cards[2:4], d.cards[4:9]
+}
