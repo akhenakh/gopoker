@@ -67,7 +67,7 @@ func NewHand(cards [5]Card) (*Hand, error) {
 			if i == j {
 				continue
 			}
-			if cards[i].value == cards[j].value {
+			if cards[i].StoreValue == cards[j].StoreValue {
 				return nil, fmt.Errorf("Invalid hand duplicates on %d %d", i, j)
 			}
 		}

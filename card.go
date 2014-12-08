@@ -12,7 +12,7 @@ var suits [4]string = [4]string{"♦", "♠", "♥", "♣"}
 // Card a card representation
 type Card struct {
 	// value as 1 = A♦ , 2 = 2♦, 11 = J♦, 12 = Q♦, 13 = K♦, 14 = A♠
-	value int
+	StoreValue int
 }
 
 // New create a new Card checking passed values
@@ -68,19 +68,19 @@ func newCS(v string) *Card {
 // Value return the value of the card A = 14, 10 = 10, Q = 11
 func (c *Card) Value() int {
 	// Ace case
-	if c.value%13 == 0 {
+	if c.StoreValue%13 == 0 {
 		return 13
 	}
-	if c.value%13 == 1 {
+	if c.StoreValue%13 == 1 {
 		return 14
 	}
-	return c.value % 13
+	return c.StoreValue % 13
 }
 
 // Suit return the suit as follow 0 = ♦, 1 = ♠, 2 = ♥, 3 = ♣
 func (c *Card) Suit() int {
-	s := c.value / 13
-	n := c.value % 13
+	s := c.StoreValue / 13
+	n := c.StoreValue % 13
 	if n == 0 {
 		s--
 	}
@@ -89,7 +89,7 @@ func (c *Card) Suit() int {
 
 // valid return true if a card is a valid one
 func (c *Card) valid() bool {
-	if c.value < 1 || c.value > 52 {
+	if c.StoreValue < 1 || c.StoreValue > 52 {
 		return false
 	}
 	return true
